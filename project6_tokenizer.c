@@ -91,19 +91,24 @@ int main (int argc, char *argv[]) {
         word_indices[i] = i + 1;  // Assign numbers starting from 1
     }
 
-    // Reset text and re-read it for tokenizing sentences
+    // Re-read text and tokenize by sentences
     rewind(rFile);
-    text[0] = '\0';  // Clear text for re-use
+    text[0] = '\0';
     while (fgets(buffer, MAX_LEN, rFile)) {
         strcat(text, buffer);
     }
 
-    char *sentence_token;
-    sentence_token = strtok(text, ".");
-    while (sentence_token != NULL) {
-        token = strtok(sentence_token, " \n");
+    // Tokenize sentences by periods
+    char *sentences_token = strtok(text, ".");
+    while (sentences_token != NULL) {
+        // Create a copy of the sentence for word tokenization
+        char sentence_copy[MAX_LEN + 1];
+        strcpy(sentence_copy, sentence_token);
+
+        // Tokenize words within the sentence copy
+        token = strtok(sentence_copy, " \n");
         while (token != NULL) {
-            // Find the index of the current word
+            // Find index of the word in the sorted list
             for (int i = 0; i < word_count; i++) {
                 if (strcmp(words[i], token) == 0) {
                     fprintf(wFile, "%d ", word_indices[i]);
@@ -112,7 +117,9 @@ int main (int argc, char *argv[]) {
             }
             token = strtok(NULL, " \n");
         }
-        fprintf(wFile, "\n");  // New line after each sentence
+        fprintf(wFile, "\n");  // Newline after each sentence's word numbers
+
+        // Move to the next sentence
         sentence_token = strtok(NULL, ".");
     }
 
